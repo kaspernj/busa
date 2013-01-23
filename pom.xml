@@ -27,13 +27,23 @@
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-    	<groupId>org.kaspernj.mirah.stdlib</groupId>
-    	<artifactId>core</artifactId>
+    	<groupId>org.kaspernj.fw</groupId>
+    	<artifactId>httpbrowser</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-    	<groupId>org.kaspernj.fw</groupId>
-    	<artifactId>httpbrowser</artifactId>
+    	<groupId>org.kaspernj.mirah.stdlib</groupId>
+    	<artifactId>file</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.kaspernj.mirah.stdlib</groupId>
+    	<artifactId>thread</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.kaspernj.mirah.stdlib</groupId>
+    	<artifactId>timeout</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
