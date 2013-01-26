@@ -1,5 +1,6 @@
 package org.kaspernj.busa
 
+import org.junit.Assert
 import org.junit.Test
 import org.kaspernj.mirah.stdlib.timeout.*
 import org.kaspernj.fw.httpbrowser.HttpBrowser
@@ -34,8 +35,6 @@ class TestServer
       elsif res_handler.handle_request(request) == Boolean.TRUE
         return Boolean.TRUE
       elsif request.url.equals("/debug_system.erb")
-        puts "Handeling!"
-        
         cwriter = request.cwriter
         cwriter.write("<html>")
         cwriter.write("<head>")
@@ -49,7 +48,6 @@ class TestServer
         return Boolean.TRUE
       end
       
-      puts "Dont handle #{request.url}"
       return Boolean.FALSE
     end
     
@@ -85,8 +83,12 @@ class TestServer
         res = http.get("test_file.html")
         raise "Invalid content: '#{res.getBody}'." if !res.getBody.contains("<title>Static file test</title>") or !res.getBody.contains("</html>") or !res.getBody.contains("<html>")
       end
+      
+      timeout.run_timeout do
+        res = http.get("file_that_does_not_exist.html")
+        Assert.assertEquals(404, res.getStatusCode)
+      end
     ensure
-      puts "Stopping busa."
       busa.stop
     end
     

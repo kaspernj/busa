@@ -31,7 +31,17 @@ class Busa
     @stopped = false
     @debug = Boolean.valueOf(String(args["debug"]))
     
+    @status_codes = {
+      "200" => "OK",
+      "404" => "Not Found",
+      "500" => "Internal Error"
+    }
+    
     @route_blks = ArrayList.new
+  end
+  
+  def status_codes
+    return @status_codes
   end
   
   def listen
@@ -67,7 +77,7 @@ class Busa
   end
   
   def debug(str:String)
-    puts str if @debug
+    puts str if @debug == Boolean.TRUE
   end
   
   def stopped
@@ -105,6 +115,7 @@ class Busa
   def dispatch(client:BusaClient)
     inst = self
     found_route = AtomicBoolean.new(false)
+    cwriter = client.cwriter
     
     @route_blks.each do |route_blk_obj|
       route_blk = ConnectRouteInterface(route_blk_obj)
@@ -121,9 +132,10 @@ class Busa
     end
     
     if !found_route.get
-      client.cwriter.write("URL could not be found: '#{client.url}'.")
+      client.status_code = 404
+      cwriter.write("URL could not be found: '#{client.url}'.")
     end
     
-    client.cwriter.done = true
+    cwriter.done = true
   end
 end

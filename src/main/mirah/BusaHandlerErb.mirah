@@ -36,7 +36,6 @@ class BusaHandlerErb
     raise "ContentWriter was null." if cwriter == nil
     
     page.connect_output do |str|
-      puts "Got output: '#{str}'."
       cwriter.write(str)
     end
   end

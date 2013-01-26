@@ -5,6 +5,7 @@ import org.kaspernj.mirah.stdlib.socket.*
 class BusaClientResultWriterHttp11
   def initialize(client:BusaClient)
     @client = client
+    @busa = @client.busa
     @socket = TCPSocket(@client.socket)
     @headers_out = @client.headers_out
     
@@ -14,10 +15,14 @@ class BusaClientResultWriterHttp11
   end
   
   def run
-    @socket.write("HTTP/1.1 200 OK\n")
+    code = @client.status_code
+    msg = @busa.status_codes[String.valueOf(code)]
+    raise "Invalid code or no message registered for code: '#{code}'." if msg == nil
+    
+    @socket.write("HTTP/1.1 #{code} #{msg}\n")
     
     @headers_out.keySet.each do |key|
-      puts "Sending header: '#{key}: #{@headers_out[key]}'."
+      debug "Sending header: '#{key}: #{@headers_out[key]}'."
       @socket.write("#{key}: #{@headers_out[key]}\n")
     end
     
@@ -37,5 +42,9 @@ class BusaClientResultWriterHttp11
     end
     
     @socket.write("0\n\n")
+  end
+  
+  def debug(str:String)
+    @client.debug(str)
   end
 end

@@ -18,8 +18,11 @@ class BusaClient
     @socket = socket
     @busa = busa
     @stopped = false
-    @debug = true
     @addr = socket.addr
+  end
+  
+  def busa
+    return @busa
   end
   
   def listen
@@ -61,16 +64,27 @@ class BusaClient
     return false
   end
   
+  #Writes a string to stdout if debugging is enabled.
   def debug(str:String)
-    puts str if @debug
+    @busa.debug(str)
   end
   
+  #Stops the client and closes the connection.
   def stop
     @stopped = true
     @socket.close
     @request_thread.interrupt if @request_thread.isAlive
   end
   
+  def status_code=(code:int)
+    @code = code
+  end
+  
+  def status_code
+    return @code
+  end
+  
+  #Handles the next request from the socket.
   def handle_request
     #Read and parse status line.
     regex_status_line = /^(GET|POST|HEAD)\s+(.+)\s+HTTP\/1\.(\d+)\s*/
@@ -83,7 +97,7 @@ class BusaClient
     @type = matcher.group(1)
     @url = matcher.group(2)
     @http_version = "1.#{matcher.group(3)}"
-    
+    @code = 200
     
     #Read and parse headers.
     regex_header = /^(.+?): (.+)(\r\n|\n)$/
@@ -124,7 +138,13 @@ class BusaClient
     }
     
     #Figure out path to requested file.
-    @busa.dispatch(self)
+    begin
+      @busa.dispatch(self)
+    rescue => e
+      self.status_code = 500
+      @cwriter.write "An error occurred (#{e.getClass.getSimpleName}): #{e.getMessage}"
+      @cwriter.done = true
+    end
     
     if @http_version.equals("1.1") and @meta.containsKey("HTTP_CONNECTION") and String(@meta["HTTP_CONNECTION"]).toLowerCase.equals("keep-alive")
       BusaClientResultWriterHttp11.new(self).run
