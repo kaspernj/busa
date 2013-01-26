@@ -39,6 +39,8 @@ class BusaClient
           #ignore - socket was closed.
           instance.debug "Ignore error because the client expects to be stopped ('stop' was probably called)."
           nil
+        elsif e.getClass == java::io::IOException.class and e.getMessage.equals("Socket seems to have closed on us?")
+          #ignore - client closed connection.
         else
           busa.handle_error(e)
           nil

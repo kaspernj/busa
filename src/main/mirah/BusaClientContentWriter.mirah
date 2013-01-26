@@ -1,5 +1,9 @@
 package org.kaspernj.busa
 
+import org.kaspernj.mirah.stdlib.core.Array
+import java.nio.ByteBuffer
+import java.util.ArrayList
+
 interface ByteBlockInterface do
   def run(bytes:byte[]):void; end
 end
@@ -10,10 +14,10 @@ class BusaClientContentWriter
   
   def initialize(client:BusaClient)
     @client = client
-    @bbuf = java::util::ArrayList.new
+    @bbuf = ArrayList.new
     @done = false
     @pos = 0
-    @size = 2048
+    @size = 4096
   end
   
   def write(bytes:byte[])
@@ -25,13 +29,33 @@ class BusaClientContentWriter
   end
   
   def each(blk:ByteBlockInterface)
+    send = ArrayList.new
+    send_size = 0
+    
     while @done and !@bbuf.isEmpty
-      ele = byte[].cast(@bbuf.get(0))
-      @bbuf.remove(ele)
-      blk.run(ele)
+      bytes_from_arr = byte[].cast(@bbuf.get(0))
+      @bbuf.remove(bytes_from_arr)
+      send.add(bytes_from_arr)
+      send_size += bytes_from_arr.length
+      
+      if send_size >= @size
+        self.send_bytes(blk, send, send_size)
+        send.clear
+        send_size = 0
+      end
     end
     
-    puts "Done with each!"
+    self.send_bytes(blk, send, send_size) if send_size > 0
+  end
+  
+  def send_bytes(blk:ByteBlockInterface, send_arr:ArrayList, send_size:int):void
+    byte_buffer = ByteBuffer.allocate(send_size)
+    
+    send_arr.each do |bytes|
+      byte_buffer.put(byte[].cast(bytes))
+    end
+    
+    blk.run(byte_buffer.array)
   end
   
   def done=(newdone:boolean)

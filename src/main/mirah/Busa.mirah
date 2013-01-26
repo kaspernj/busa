@@ -4,7 +4,9 @@ import org.kaspernj.mirah.stdlib.socket.*
 import org.kaspernj.mirah.stdlib.file.*
 import org.kaspernj.mirah.stdlib.thread.*
 
+import java.util.ArrayList
 import java.util.HashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 interface ConnectRouteInterface do
   def run(client:BusaClient):Object; end
@@ -12,22 +14,24 @@ end
 
 class Busa
   def initialize(args:HashMap)
+    allowed_args = ["debug", "port"]
+    args.keySet.each do |key|
+      raise "Invalid key: '#{key}'." if !allowed_args.contains(key)
+    end
+    
     port = String(args.get("port"))
     port = "8085" if port == null
     @port = Integer.parseInt(port)
     
-    @doc_root = String.valueOf(args[:doc_root])
-    raise "Invalid 'doc_root' was given: '#{@doc_root}'." if @doc_root == nil or !File.exists?(@doc_root)
-    
-    puts "Opening port."
+    debug "Opening port."
     @socket = TCPServer.new("0.0.0.0", @port)
     
     @clients_mutex = Mutex.new
-    @clients = java::util::ArrayList.new
+    @clients = ArrayList.new
     @stopped = false
-    @debug = true
+    @debug = Boolean.valueOf(String(args["debug"]))
     
-    @route_blks = java::util::ArrayList.new
+    @route_blks = ArrayList.new
   end
   
   def listen
@@ -35,14 +39,14 @@ class Busa
     socket = @socket
     clients = @clients
     
-    puts "Starting listen-thread."
+    debug "Starting listen-thread."
     @listen_thread = Thread.new do
       begin
         while true
-          puts "Waiting for new client."
+          instance.debug "Waiting for new client."
           socket_client = socket.accept
           
-          puts "Client accepted - starting new BusaClient."
+          instance.debug "Client accepted - starting new BusaClient."
           busa_client = BusaClient.new(instance, socket_client)
           clients.add(busa_client)
           
@@ -99,21 +103,27 @@ class Busa
   end
   
   def dispatch(client:BusaClient)
+    inst = self
+    found_route = AtomicBoolean.new(false)
+    
     @route_blks.each do |route_blk_obj|
       route_blk = ConnectRouteInterface(route_blk_obj)
-      
       res = route_blk.run(client)
-      found_route = false
       
-      if res.getClass == Boolean.class and res
-        found_route = true
+      if res.getClass == Boolean.class and res == Boolean.TRUE
+        found_route.set(true)
       end
       
-      if found_route
-        debug "Request with path '#{client.url}' was handeled by route."
-        client.cwriter.done = true
+      if found_route.get
+        inst.debug "Request with path '#{client.url}' was handeled by route."
         break
       end
     end
+    
+    if !found_route.get
+      client.cwriter.write("URL could not be found: '#{client.url}'.")
+    end
+    
+    client.cwriter.done = true
   end
 end

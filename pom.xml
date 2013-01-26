@@ -46,6 +46,11 @@
     	<artifactId>timeout</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+    	<groupId>org.kaspernj.mirah</groupId>
+    	<artifactId>erb2mirah</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
   	<plugins>
