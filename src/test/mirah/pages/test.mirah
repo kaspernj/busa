@@ -5,6 +5,7 @@ self.write('</head>' + "\n" + '');
 self.write('<body>' + "\n" + '');
 self.write('  ');
     self.puts "Weeeee!"
+    self.import("org.kaspernj.mirah.erb2mirah.generated", "test_import.mirah.erb")
   self.puts('');
 self.write('</body>' + "\n" + '');
 self.write('</html>');

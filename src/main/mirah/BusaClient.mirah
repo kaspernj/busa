@@ -25,33 +25,42 @@ class BusaClient
     return @busa
   end
   
-  def listen
-    instance = self
+  def listen:void
+    inst = self
     busa = @busa
     
     @request_thread = Thread.new do
-      raise "Busa is null." if busa == nil
-      
       begin
-        while true
-          instance.debug "Beginning new request."
-          instance.handle_request
-        end
-      rescue => e
-        if e.getClass == java::net::SocketException.class and e.getMessage.equals("Socket closed") and instance.stopped
-          #ignore - socket was closed.
-          instance.debug "Ignore error because the client expects to be stopped ('stop' was probably called)."
-          nil
-        elsif e.getClass == java::io::IOException.class and e.getMessage.equals("Socket seems to have closed on us?")
-          #ignore - client closed connection.
-        else
-          busa.handle_error(e)
-          nil
-        end
+        inst.listen_for_requests
+      ensure
+        inst.stop
       end
     end
     
     @request_thread.start
+  end
+  
+  def listen_for_requests:void
+    raise "Busa is null." if busa == nil
+    
+    begin
+      while !self.stopped
+        debug "Beginning new request."
+        handle_request
+      end
+    rescue => e
+      if e.getClass == java::net::SocketException.class and e.getMessage.equals("Socket closed") and self.stopped
+        #ignore - socket was closed.
+        debug "Ignore error because the client expects to be stopped ('stop' was probably called)."
+        nil
+      elsif e.getClass == java::io::IOException.class and e.getMessage.equals("Socket seems to have closed on us?")
+        #ignore - client closed connection.
+        nil
+      else
+        busa.handle_error(e)
+        nil
+      end
+    end
   end
   
   def stopped
@@ -72,7 +81,8 @@ class BusaClient
   #Stops the client and closes the connection.
   def stop
     @stopped = true
-    @socket.close
+    @socket.close if @socket
+    @socket = nil
     @request_thread.interrupt if @request_thread.isAlive
   end
   

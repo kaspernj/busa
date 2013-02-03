@@ -31,6 +31,7 @@ class BusaHandlerResources
     end
     
     request.cwriter.write(bytes)
+    fis.close
     
     return Boolean.TRUE
   end
