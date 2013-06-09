@@ -1,6 +1,7 @@
 package org.kaspernj.busa
 
 import org.kaspernj.mirah.stdlib.socket.*
+import org.kaspernj.mirah.stdlib.core.*
 
 class BusaClient
   def meta; return @meta; end
@@ -112,12 +113,12 @@ class BusaClient
     #Read and parse headers.
     regex_header = /^(.+?): (.+)(\r\n|\n)$/
     
-    @headers = {}
-    @meta = {
+    @headers = Hash.new
+    @meta = Hash.new(
       "METHOD" => matcher.group(1),
       "REMOTE_ADDR" => @addr.get(2),
       "REMOTE_PORT" => @addr.get(1)
-    }
+    )
     
     while true
       header_str = @socket.gets
@@ -143,9 +144,9 @@ class BusaClient
     
     @cwriter = BusaClientContentWriter.new(self)
     
-    @headers_out = {
+    @headers_out = Hash.new({
       "Host" => @meta["HTTP_HOST"]
-    }
+    })
     
     #Figure out path to requested file.
     begin

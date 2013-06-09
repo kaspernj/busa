@@ -24,6 +24,8 @@ class BusaHandlerErb
     end
     
     page = Page(InstanceLoader.load(clazz))
+    page.meta = request.meta
+    
     self.connect_output(page, request.cwriter)
     page.run_code
     
