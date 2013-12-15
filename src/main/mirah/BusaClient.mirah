@@ -1,7 +1,6 @@
 package org.kaspernj.busa
 
-import org.kaspernj.mirah.stdlib.socket.*
-import org.kaspernj.mirah.stdlib.core.*
+import mirah.stdlib.*
 
 class BusaClient
   def meta; return @meta; end
@@ -37,8 +36,6 @@ class BusaClient
         inst.stop
       end
     end
-    
-    @request_thread.start
   end
   
   def listen_for_requests:void
@@ -70,7 +67,7 @@ class BusaClient
   
   #Returns true if this client is actively listening for new requests.
   def alive
-    return true if @request_thread != nil and @request_thread.isAlive
+    return true if @request_thread != nil and @request_thread.alive?
     return false
   end
   
@@ -84,7 +81,7 @@ class BusaClient
     @stopped = true
     @socket.close if @socket
     @socket = nil
-    @request_thread.interrupt if @request_thread.isAlive
+    @request_thread.kill if @request_thread.alive?
   end
   
   def status_code=(code:int)
@@ -157,7 +154,7 @@ class BusaClient
       @cwriter.done = true
     end
     
-    if @http_version.equals("1.1") and @meta.containsKey("HTTP_CONNECTION") and String(@meta["HTTP_CONNECTION"]).toLowerCase.equals("keep-alive")
+    if @http_version.equals("1.1") and @meta.key?("HTTP_CONNECTION") and String(@meta["HTTP_CONNECTION"]).toLowerCase.equals("keep-alive")
       BusaClientResultWriterHttp11.new(self).run
     else
       raise "Unknown HTTP version: '#{@http_version}'."

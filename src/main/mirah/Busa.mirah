@@ -1,8 +1,6 @@
 package org.kaspernj.busa
 
-import org.kaspernj.mirah.stdlib.socket.*
-import org.kaspernj.mirah.stdlib.file.*
-import org.kaspernj.mirah.stdlib.thread.*
+import mirah.stdlib.*
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -72,8 +70,6 @@ class Busa
         end
       end
     end
-    
-    @listen_thread.start
   end
   
   def debug(str:String)
@@ -87,7 +83,7 @@ class Busa
   def stop
     @stopped = true
     
-    @listen_thread.interrupt
+    @listen_thread.kill
     @clients.each do |client_obj|
       client = BusaClient(client_obj)
       

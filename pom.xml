@@ -22,28 +22,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.kaspernj.mirah.stdlib</groupId>
-    	<artifactId>socket</artifactId>
+    	<groupId>mirah</groupId>
+    	<artifactId>stdlib</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>org.kaspernj.fw</groupId>
     	<artifactId>httpbrowser</artifactId>
-    	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.kaspernj.mirah.stdlib</groupId>
-    	<artifactId>file</artifactId>
-    	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.kaspernj.mirah.stdlib</groupId>
-    	<artifactId>thread</artifactId>
-    	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.kaspernj.mirah.stdlib</groupId>
-    	<artifactId>timeout</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>

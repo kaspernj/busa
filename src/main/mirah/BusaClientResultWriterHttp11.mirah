@@ -1,6 +1,6 @@
 package org.kaspernj.busa
 
-import org.kaspernj.mirah.stdlib.socket.*
+import mirah.stdlib.*
 
 class BusaClientResultWriterHttp11
   def initialize(client:BusaClient)
@@ -21,7 +21,7 @@ class BusaClientResultWriterHttp11
     
     @socket.write("HTTP/1.1 #{code} #{msg}\n")
     
-    @headers_out.keySet.each do |key|
+    @headers_out.real_hash.keySet.each do |key|
       debug "Sending header: '#{key}: #{@headers_out[key]}'."
       @socket.write("#{key}: #{@headers_out[key]}\n")
     end

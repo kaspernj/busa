@@ -1,6 +1,6 @@
 package org.kaspernj.busa
 
-import org.kaspernj.mirah.stdlib.core.Array
+import mirah.stdlib.Array
 import java.nio.ByteBuffer
 import java.util.ArrayList
 

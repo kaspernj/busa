@@ -8,7 +8,7 @@ import java.net.ServerSocket
 import org.junit.Assert
 import org.junit.Test
 
-import org.kaspernj.mirah.stdlib.timeout.*
+import mirah.stdlib.*
 import org.kaspernj.fw.httpbrowser.HttpBrowser
 import org.kaspernj.busa.*
 import org.kaspernj.mirah.erb2mirah.Erb2mirah
@@ -18,24 +18,15 @@ import org.kaspernj.mirah.erb2mirah.InstanceLoader
 class TestServer
   $Test
   def testServer:void
+    # Figure out a free port.
     server = ServerSocket.new(0)
     port = server.getLocalPort
-    port_str = String.valueOf(port)
     server.close
     
-    path = "#{java::io::File.new(".").getAbsolutePath}/src/main/mirah/pages"
-    inst = self
-    busa = Busa.new("port" => port_str, "debug" => "false")
-    
-    thread_busa = Thread.new do
-      puts "Starting listening for Busa."
-      
-      begin
-        busa.listen
-      ensure
-        puts "Stopped listening for Busa."
-      end
-    end
+    busa = Busa.new(
+      "port" => String.valueOf(port),
+      "debug" => "false"
+    )
     
     erb_handler = BusaHandlerErb.new("package" => "org.kaspernj.mirah.erb2mirah.generated")
     res_handler = BusaHandlerResources.new("path" => "www")
@@ -62,7 +53,15 @@ class TestServer
       return Boolean.FALSE
     end
     
-    thread_busa.start
+    thread_busa = Thread.new do
+      puts "Starting listening for Busa."
+      
+      begin
+        busa.listen
+      ensure
+        puts "Stopped listening for Busa."
+      end
+    end
     
     begin
       puts "Connecting to Busa."
@@ -161,8 +160,6 @@ class TestServer
         http.close
       end
     end
-    
-    thread.start
     
     return thread
   end
